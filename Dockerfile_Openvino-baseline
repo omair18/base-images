@@ -1,4 +1,7 @@
-#FROM openvino/ubuntu18_dev:latest
+#OpenVino Inferencing engine and tracking plugins to be included, also included Intel hardware accelaration software 
+# stack such as media driver, media SDK, OpenVINO, gmmlib and libva. 
+# Also conctains OpenCV 4.2.0-openvino compiled with Gstreamer and python3.
+
 FROM openvisualcloud/vcaca-ubuntu1804-analytics-gst:latest
 
 ARG TEMP_DIR=/tmp/openvino_installer
