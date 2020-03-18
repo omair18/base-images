@@ -38,7 +38,7 @@ RUN cd /app/scripts/opencv*/build/ && cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE
 	-D WITH_CUDA=OFF \
 	-D OPENCV_ENABLE_NONFREE=OFF \
 	-D WITH_CUBLAS=OFF -D WITH_NVCUVID=OFF -D BUILD_EXAMPLES=OFF -D WITH_GSTREAMER=ON -D WITH_FFMPEG=ON -D BUILD_NEW_PYTHON_SUPPORT=ON -D BUILD_opencv_python3=ON -D HAVE_opencv_python3=ON -D OPENCV_PYTHON_VERSION=ON -D OPENCV_PYTHON3_INSTALL_PATH=/usr/lib/python3.6/dist-packages .. && make -j8 install
-RUN rm -rf /app/scripts &&     
+RUN rm -rf /app/scripts
 
 #Install OpenVino dependencies
 
@@ -67,6 +67,5 @@ RUN /tmp2/${OPENVINO_BUNDLE}/install.sh --ignore-signature --cli-mode -s /tmp2/s
 ENV IE_PLUGINS_PATH=/opt/intel/openvino/deployment_tools/inference_engine/lib/intel64
 ENV HDDL_INSTALL_DIR=/opt/intel/openvino/deployment_tools/inference_engine/external/hddl
 ENV InferenceEngine_DIR=/opt/intel/openvino/deployment_tools/inference_engine/share
-#ENV OpenCV_DIR=/opt/intel/openvino/opencv/share/OpenCV
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/intel/openvino/deployment_tools/ngraph/lib:/opt/intel/opencl:$HDDL_INSTALL_DIR/lib:/opt/intel/openvino/deployment_tools/inference_engine/external/gna/lib:/opt/intel/openvino/deployment_tools/inference_engine/external/mkltiny_lnx/lib:/opt/intel/openvino/deployment_tools/inference_engine/external/omp/lib:/opt/intel/openvino/deployment_tools/inference_engine/external/tbb/lib:/opt/intel/openvino/openvx/lib:$IE_PLUGINS_PATH
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
