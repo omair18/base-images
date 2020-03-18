@@ -31,6 +31,33 @@ open mp4 file with vaapi for hardware acceleration
 ```sh
 gst-launch-1.0 -v filesrc location=/path/to/video.mp4 ! qtdemux ! vaapidecodebin ! vaapisink fullscreen=true
 ```
+sample commands using vaapi plugin
+* Play an H.264 video with an MP4 container in fullscreen mode
+    ```sh 
+    gst-launch-1.0 -v filesrc location=/path/to/video.mp4 ! \
+    qtdemux ! vaapidecodebin ! vaapisink fullscreen=true
+    ```
+
+* Play a raw MPEG-2 interlaced stream
+    ``` sh
+    gst-launch-1.0 -v filesrc location=/path/to/mpeg2.bits ! \
+    mpegvideoparse ! vaapimpeg2dec ! vaapipostproc ! vaapisink
+    ```
+
+* Convert from one pixel format to another, while also downscaling
+    ```sh 
+    gst-launch-1.0 -v filesrc location=/path/to/raw_video.yuv ! \
+    videoparse format=yuy2 width=1280 height=720 ! \
+    vaapipostproc format=nv12 height=480 ! vaapisink
+    ```
+
+* Encode a 1080p stream in raw I420 format into H.264
+    ```sh
+    gst-launch-1.0 -v filesrc location=/path/to/raw_video.yuv ! \
+    videoparse format=i420 width=1920 height=1080 framerate=30/1 ! \
+    vaapih264enc rate-control=cbr tune=high-compression ! \
+    qtmux ! filesink location=/path/to/encoded_video.mp4
+    ```
 
 Convert motec camera mjpg to h264 and stream it to localhost
 ```sh
