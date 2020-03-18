@@ -41,6 +41,10 @@ RUN cd /app/scripts/opencv*/build/ && cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE
 RUN rm -rf /app/scripts
 
 #Install OpenVino dependencies
+# OpenVINO verion
+# 2020.1 and deployment manager script
+ARG OPENVINO_BUNDLE=l_openvino_toolkit_p_2020.1.023
+ARG OPENVINO_URL=http://registrationcenter-download.intel.com/akdlm/irc_nas/16345/l_openvino_toolkit_p_2020.1.023.tgz
 
 #Download and unpack OpenVino
 RUN mkdir /tmp2 && rm -rf /opt/intel/openvino/
