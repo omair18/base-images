@@ -31,7 +31,7 @@ RUN cd /app/scripts && ls -l && tar -xvf cmake.tar.gz && cd cmake-3.17.0-rc3-Lin
 RUN apt-get -y install ffmpeg libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev liborc-0.4-dev && ln -s /usr/include/gstreamer-1.0 /usr/local/include/gstreamer-1.0 && ln -s /usr/include/orc-0.4 /usr/local/include/ && \
     cd /app/scripts/ && ls -l && cd opencv-${VERSION} && mkdir -p build && cd build
 
-RUN apt-get -y install libavcodec-dev libavformat-dev libswscale-dev libv4l-dev libgtk2.0-dev libatlas-base-dev gfortran && pip3 install numpy
+RUN apt-get -y install libavcodec-dev libavformat-dev libswscale-dev libv4l-dev libgtk2.0-dev libatlas-base-dev gfortran ffmpeg x264 libx264-dev && pip3 install numpy
 RUN cd /app/scripts/opencv*/build/ && cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D BUILD_SHARED_LIBS=ON\
 	-D INSTALL_PYTHON_EXAMPLES=OFF -D INSTALL_C_EXAMPLES=OFF \
 	-D PYTHON_DEFAULT_EXECUTABLE=$(which python3) -D PYTHON_EXECUTABLE=$(which python3) \
@@ -73,3 +73,4 @@ ENV HDDL_INSTALL_DIR=/opt/intel/openvino/deployment_tools/inference_engine/exter
 ENV InferenceEngine_DIR=/opt/intel/openvino/deployment_tools/inference_engine/share
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/intel/openvino/deployment_tools/ngraph/lib:/opt/intel/opencl:$HDDL_INSTALL_DIR/lib:/opt/intel/openvino/deployment_tools/inference_engine/external/gna/lib:/opt/intel/openvino/deployment_tools/inference_engine/external/mkltiny_lnx/lib:/opt/intel/openvino/deployment_tools/inference_engine/external/omp/lib:/opt/intel/openvino/deployment_tools/inference_engine/external/tbb/lib:/opt/intel/openvino/openvx/lib:$IE_PLUGINS_PATH
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+WORKDIR /
