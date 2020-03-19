@@ -66,7 +66,7 @@ RUN echo "ACCEPT_EULA=accept" > /tmp2/silent.cfg                        && \
     echo "SIGNING_ENABLED=no" >> /tmp2/silent.cfg
 
 #Install OpenVino
-RUN /tmp2/${OPENVINO_BUNDLE}/install.sh --ignore-signature --cli-mode -s /tmp2/silent.cfg && rm -rf /tmp2 && rm -rf /opt/intel/openvino/opencv
+RUN /tmp2/${OPENVINO_BUNDLE}/install.sh --ignore-signature --cli-mode -s /tmp2/silent.cfg && rm -rf /tmp2 && rm -rf /opt/intel/openvino/opencv && rm -rf /opt/intel/openvino/python/python2.7/cv2.so && rm -rf /opt/intel/openvino/python/python3/cv2.abi3.so
 
 ENV IE_PLUGINS_PATH=/opt/intel/openvino/deployment_tools/inference_engine/lib/intel64
 ENV HDDL_INSTALL_DIR=/opt/intel/openvino/deployment_tools/inference_engine/external/hddl
