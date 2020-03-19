@@ -23,7 +23,7 @@ RUN /bin/bash -c "source $INSTALL_DIR/bin/setupvars.sh" && pip3 install --upgrad
 
 #gstreamer1.0-tools libgstreamer1.0-0 gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-tools libgstreamer-plugins-base1.0-dev 
 
-ARG VERSION=4.2.0
+ARG VERSION=4.1.2-openvino
 RUN mkdir -p /app/scripts && cd /app/scripts && wget -c https://github.com/opencv/opencv/archive/${VERSION}.tar.gz -O opencv-${VERSION}.tar.gz && tar -xf opencv-${VERSION}.tar.gz
 
 RUN cd /app/scripts && axel -n 10 https://github.com/Kitware/CMake/releases/download/v3.17.0-rc3/cmake-3.17.0-rc3-Linux-x86_64.tar.gz -o cmake.tar.gz
@@ -66,7 +66,7 @@ RUN echo "ACCEPT_EULA=accept" > /tmp2/silent.cfg                        && \
     echo "SIGNING_ENABLED=no" >> /tmp2/silent.cfg
 
 #Install OpenVino
-RUN /tmp2/${OPENVINO_BUNDLE}/install.sh --ignore-signature --cli-mode -s /tmp2/silent.cfg && rm -rf /tmp2
+RUN /tmp2/${OPENVINO_BUNDLE}/install.sh --ignore-signature --cli-mode -s /tmp2/silent.cfg && rm -rf /tmp2 && rm -rf /opt/intel/openvino/opencv
 
 ENV IE_PLUGINS_PATH=/opt/intel/openvino/deployment_tools/inference_engine/lib/intel64
 ENV HDDL_INSTALL_DIR=/opt/intel/openvino/deployment_tools/inference_engine/external/hddl
