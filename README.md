@@ -5,7 +5,10 @@ Also conctains OpenCV 4.2.0-openvino compiled with Gstreamer and python3.
 
 
 # Useful Gstreamer command
-
+write mp4 file with hardware encoding
+```sh
+appsrc ! videoconvert ! videoscale ! video/x-raw,width=640,height=480 !  vaapih264enc ! mpegtsmux ! filesink location=file.mp4
+```
 open rtsp stream
 ``` sh
 gst-launch-1.0 rtspsrc location=rtsp://admin:admin123@192.168.0.100:554/Streaming/Channels/101 latency=10 ! decodebin ! autovideosink
