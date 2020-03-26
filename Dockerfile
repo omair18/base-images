@@ -1,67 +1,99 @@
-#OpenVino Inferencing engine and tracking plugins to be included, also included Intel hardware accelaration software 
-# stack such as media driver, media SDK, OpenVINO, gmmlib and libva. 
-# Also conctains OpenCV 4.2.0-openvino compiled with Gstreamer and python3.
+ARG BASE_IMAGE=nvidia/cuda:10.0-cudnn7-devel-ubuntu16.04
+FROM ${BASE_IMAGE}
 
-FROM openvisualcloud/vcaca-ubuntu1804-analytics-gst:latest
-
-ARG TEMP_DIR=/tmp/openvino_installer
-ARG INSTALL_DIR=/opt/intel/openvino/
-ARG VERSION=4.1.2-openvino
-ARG OPENVINO_BUNDLE=l_openvino_toolkit_p_2020.1.023
-ARG OPENVINO_URL=http://registrationcenter-download.intel.com/akdlm/irc_nas/16345/l_openvino_toolkit_p_2020.1.023.tgz
-
-USER root
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    wget \
-    axel \
-    cpio \
-    sudo \
-    bash \
-    lsb-release && \
-    rm -rf /var/lib/apt/lists/* && \
-    mkdir -p $TEMP_DIR && cd $TEMP_DIR && \
-    rm -rf /opt/intel/openvino/opencv/ && rm -rf /usr/local/lib/libopencv* && apt-get update && apt-get install -y python3-dev python3-setuptools python3-pip libeigen3-dev && \
-     /bin/bash -c "source $INSTALL_DIR/bin/setupvars.sh" && pip3 install --upgrade pip && \
-    mkdir -p /app/scripts && cd /app/scripts && wget -c https://github.com/opencv/opencv/archive/${VERSION}.tar.gz -O opencv-${VERSION}.tar.gz && tar -xf opencv-${VERSION}.tar.gz && \
-    cd /app/scripts && axel -n 10 https://github.com/Kitware/CMake/releases/download/v3.17.0-rc3/cmake-3.17.0-rc3-Linux-x86_64.tar.gz -o cmake.tar.gz && \
-    cd /app/scripts && ls -l && tar -xvf cmake.tar.gz && cd cmake-3.17.0-rc3-Linux-x86_64 && cp -r bin /usr/ && cp -r share /usr/ && cp -r doc /usr/share/ && cp -r man /usr/share/ && \
-    apt-get -y install ffmpeg libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev liborc-0.4-dev && ln -s /usr/include/gstreamer-1.0 /usr/local/include/gstreamer-1.0 && ln -s /usr/include/orc-0.4 /usr/local/include/ && \
-    cd /app/scripts/ && ls -l && cd opencv-${VERSION} && mkdir -p build && cd build && \
-    apt-get -y install libavcodec-dev libavformat-dev libswscale-dev libv4l-dev libgtk2.0-dev libatlas-base-dev gfortran ffmpeg x264 libx264-dev && pip3 install numpy && \
-    cd /app/scripts/opencv*/build/ && cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D BUILD_SHARED_LIBS=ON\ 
-	-D INSTALL_PYTHON_EXAMPLES=OFF -D INSTALL_C_EXAMPLES=OFF \
-	-D PYTHON_DEFAULT_EXECUTABLE=$(which python3) -D PYTHON_EXECUTABLE=$(which python3) \
-	-D WITH_CUDA=OFF \
-	-D OPENCV_ENABLE_NONFREE=OFF \
-	-D WITH_CUBLAS=OFF -D WITH_NVCUVID=OFF -D BUILD_EXAMPLES=OFF -D WITH_GSTREAMER=ON -D WITH_FFMPEG=ON -D BUILD_NEW_PYTHON_SUPPORT=ON -D BUILD_opencv_python3=ON -D HAVE_opencv_python3=ON -D OPENCV_PYTHON_VERSION=ON -D OPENCV_PYTHON3_INSTALL_PATH=/usr/lib/python3.6/dist-packages .. && make -j8 install && rm -rf /app/scripts
+        build-essential \
+        nano \
+        cmake \
+        git \
+        wget \
+        axel \ 
+        tar \
+        bzip2 \
+        unzip \
+        gzip \
+        autoconf \
+        automake \
+        libtool \
+        libatlas-base-dev \
+        libboost-all-dev \
+        libgflags-dev \
+        libgoogle-glog-dev \
+        libhdf5-serial-dev \
+        libleveldb-dev \
+        liblmdb-dev \
+        libsnappy-dev \
+        python3-dev \
+        python3-pip \
+        libgtk-3-dev \
+        libavcodec-dev \
+        libavformat-dev \
+        libswscale-dev \
+        libv4l-dev \
+        libxvidcore-dev \
+        libx264-dev \
+        cpio \
+        base-files \
+        lsb-release \
+        lsb-base \
+        libgstreamer-plugins-base1.0-0 \
+        libtbb-dev && \
+    rm -rf /var/lib/apt/lists/*
 
-#Install OpenVino dependencies
-# OpenVINO verion
-# 2020.1 and deployment manager script
+WORKDIR /tmp
+RUN wget  https://github.com/google/protobuf/releases/download/v3.1.0/protobuf-cpp-3.1.0.tar.gz && \
+    tar xvzf protobuf-cpp-3.1.0.tar.gz && \
+    cd /tmp/protobuf-3.1.0 && \
+    ./autogen.sh && \
+    ./configure --prefix=/usr && \
+    make -j 4 && \
+    make check && \
+    make install && \
+    rm -rf /tmp/protobuf*
 
-#Download and unpack OpenVino
-RUN mkdir /tmp2 && rm -rf /opt/intel/openvino/ && \
-    wget ${OPENVINO_URL} -P /tmp2 && \
-    if [ -f /tmp2/${OPENVINO_BUNDLE}.tgz ]; \
-    then tar xzvf /tmp2/${OPENVINO_BUNDLE}.tgz -C /tmp2 && rm /tmp2/${OPENVINO_BUNDLE}.tgz; \
-    else echo "Please prepare the OpenVino installation bundle"; \
-    fi
+ARG OPENVINO_URL=http://registrationcenter-download.intel.com/akdlm/irc_nas/16345/l_openvino_toolkit_p_2020.1.023.tgz
+ARG OPENVINO_BUNDLE=l_openvino_toolkit_p_2020.1.023
+#ARG OPENVINO_VERSION=2019.2.180
+#ARG OPENVINO_VERSION=2019.2.242
+#COPY l_openvino_toolkit_p_${OPENVINO_VERSION}.tgz /tmp/l_openvino_toolkit_p_${OPENVINO_VERSION}.tgz
+WORKDIR /tmp
+#RUN wget ${OPENVINO_URL} -P /tmp 
+COPY ./l_openvino_toolkit_p_2020.1.023.tgz /tmp/
+RUN cd /tmp && tar -xvzf ${OPENVINO_BUNDLE}.tgz -C /tmp && cd l_openvino_toolkit_p_2020.1.023/ && \
+    sed -i -e 's/ACCEPT_EULA=decline/ACCEPT_EULA=accept/g' silent.cfg && \
+    sh install.sh -s silent.cfg && \
+    rm -rf /tmp/* && \
+    echo "source /opt/intel/openvino/bin/setupvars.sh" >> /etc/bash.bashrc
 
-# Create a silent configuration file for install
-RUN echo "ACCEPT_EULA=accept" > /tmp2/silent.cfg                        && \
-    echo "CONTINUE_WITH_OPTIONAL_ERROR=yes" >> /tmp2/silent.cfg         && \
-    echo "PSET_INSTALL_DIR=/opt/intel" >> /tmp2/silent.cfg              && \
-    echo "CONTINUE_WITH_INSTALLDIR_OVERWRITE=yes" >> /tmp2/silent.cfg   && \
-    echo "COMPONENTS=DEFAULTS" >> /tmp2/silent.cfg                      && \
-    echo "COMPONENTS=ALL" >> /tmp2/silent.cfg                           && \
-    echo "PSET_MODE=install" >> /tmp2/silent.cfg                        && \
-    echo "INTEL_SW_IMPROVEMENT_PROGRAM_CONSENT=no" >> /tmp2/silent.cfg  && \
-    echo "SIGNING_ENABLED=no" >> /tmp2/silent.cfg && \
-    /tmp2/${OPENVINO_BUNDLE}/install.sh --ignore-signature --cli-mode -s /tmp2/silent.cfg && rm -rf /tmp2 && rm -rf /opt/intel/openvino/opencv && rm -rf /opt/intel/openvino/python/python2.7/cv2.so && rm -rf /opt/intel/openvino/python/python3/cv2.abi3.so
+ENV CAFFE_ROOT=/opt/caffe
 
-ENV IE_PLUGINS_PATH=/opt/intel/openvino/deployment_tools/inference_engine/lib/intel64
-ENV HDDL_INSTALL_DIR=/opt/intel/openvino/deployment_tools/inference_engine/external/hddl
-ENV InferenceEngine_DIR=/opt/intel/openvino/deployment_tools/inference_engine/share
-ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/intel/openvino/deployment_tools/ngraph/lib:/opt/intel/opencl:$HDDL_INSTALL_DIR/lib:/opt/intel/openvino/deployment_tools/inference_engine/external/gna/lib:/opt/intel/openvino/deployment_tools/inference_engine/external/mkltiny_lnx/lib:/opt/intel/openvino/deployment_tools/inference_engine/external/omp/lib:/opt/intel/openvino/deployment_tools/inference_engine/external/tbb/lib:/opt/intel/openvino/openvx/lib:$IE_PLUGINS_PATH
-ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
-WORKDIR /
+COPY caffe /opt/caffe
+WORKDIR $CAFFE_ROOT
+
+RUN pip3 install --upgrade pip==9.0.3 && \
+    pip3 install --upgrade setuptools wheel && \
+    pip3 install -r python/requirements.txt && \
+    grep -v protobuf /opt/intel/openvino/deployment_tools/model_optimizer/requirements_caffe.txt | xargs -n 1 pip3 install && \
+    pip3 install networkx==2.3
+
+RUN rm -rf build && mkdir build && cd build && \
+    cmake -DCMAKE_BUILD_TYPE=Release \
+      -Dpython_version=3 \
+      -Wno-dev \
+      -DCUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda \
+      -DCUDA_ARCH_BIN="30 35 50 52 60 61 70" \
+      -DCUDA_ARCH_PTX="" \
+      -DCUDA_ARCH_NAME="Manual" \
+      -DCMAKE_CXX_FLAGS="-std=c++11" \
+      -DOpenCV_DIR=/opt/intel/openvino/opencv/cmake \
+      .. && \
+    make -j 8 && make pycaffe
+
+ENV PYCAFFE_ROOT $CAFFE_ROOT/python
+ENV PYTHONPATH $PYCAFFE_ROOT:$PYTHONPATH
+ENV PATH $CAFFE_ROOT/build/tools:$PYCAFFE_ROOT:$PATH
+RUN echo "$CAFFE_ROOT/build/lib" >> /etc/ld.so.conf.d/caffe.conf && ldconfig &> /dev/null
+
+RUN echo 'export PS1="\w\$ "' >> /etc/bash.bashrc
+
+WORKDIR /workspace
